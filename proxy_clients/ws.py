@@ -1,8 +1,8 @@
 import websockets
 import asyncio
 import json
+from utils.access_token import generate_access_token
 import utils.time
-import jwt
 import protocol.server as server
 
 import logging
@@ -33,11 +33,7 @@ class ProxyWSClient:
         asyncio.ensure_future(self.__heartbeat_timer())
 
     async def authenticate(self, user_tag, api_key, private_key):
-        now = utils.time.time_s()
-        # Generate JWT with 1 min expiry
-        # All PowerTrade api keys use the same algo 'ES256'
-        token = jwt.encode({"exp": now + 60, "iat": now,
-                           "sub": api_key}, private_key, algorithm="ES256")
+        token = generate_access_token(api_key, private_key)
         await self.__write({"authenticate": {"user_tag": user_tag, "credentials_secret": token}})
 
     async def send_multi_leg_order(self, side, price, quantity, legs):
@@ -91,6 +87,35 @@ class ProxyWSClient:
                 # "recv_window": "1" -> valid for 10 minutes
                 # "recv_window": "2" -> valid for 20 minutes etc ...
                 "recv_window": "144",  # 1 day = 24 * 6 * (10min cycles)
+                # Current UTC timestamp
+                "timestamp": str(utils.time.time_us()),
+                # Symbol as string. e.g. `BTC-USD-PERPETUAL`
+                "symbol": symbol,
+                # Request tag identifier
+                "user_tag": "not in use"
+            }
+        })
+
+    async def send_single_leg_rfq(self, side, quantity, symbol):
+        await self.__write({
+            "new_order": {
+                # Send market id of 0 for firm orders. Send 255 for indicative orders (RFQs)
+                "market_id": "none",
+                # buy or sell
+                "side": side,
+                # Limit orders are always GTC (good till cancelled)
+                "type": "LIMIT",
+                "time_in_force": "GTC",
+                # The API expect a floating point quantity sent as string
+                "quantity": str(quantity),
+                # The API expect a floating point price sent as string
+                "price": "1000.0",
+                # GUID for the order chosen by the client
+                "client_order_id": str(utils.time.time_us()),
+                # Number of 10 min exchange cycles, the order will be active for
+                # "recv_window": "1" -> valid for 10 minutes
+                # "recv_window": "2" -> valid for 20 minutes etc ...
+                "recv_window": "2",  # 1 day = 24 * 6 * (10min cycles)
                 # Current UTC timestamp
                 "timestamp": str(utils.time.time_us()),
                 # Symbol as string. e.g. `BTC-USD-PERPETUAL`

@@ -10,6 +10,7 @@ jsonschema = "4.10.0"
 websockets = "10.3"
 PyJWT = "^2.4.0"
 cryptography = "^37.0.4"
+inquirer = "2.10"
 
 [tool.poetry.dev-dependencies]
 

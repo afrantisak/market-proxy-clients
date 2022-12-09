@@ -5,7 +5,7 @@ import getMarketProxyApi from '../../market-proxy/api';
 import { getConfig } from '../../market-proxy/base/config';
 import { sleep } from '../../market-proxy/utils/time';
 
-test('[REST] fetch balances', async () => {
+test('[WS] fetch positions', async () => {
   const api = await getMarketProxyApi(getConfig());
   await api.authenticate();
 
@@ -26,11 +26,11 @@ test('[REST] fetch balances', async () => {
 
   await sleep(500);
 
-  const response = await api.positionsRest();
+  const { positions } = await api.positionsWs();
 
-  expect(response.length).toBeTruthy();
-  expect(response.find((p) => p.symbol === 'BTC-USD-PERPETUAL')).toBeTruthy();
-  expect(response.find((p) => p.symbol === 'BTC-USD-PERPETUAL')).toEqual({
+  expect(positions.length).toBeTruthy();
+  expect(positions.find((p) => p.symbol === 'BTC-USD-PERPETUAL')).toBeTruthy();
+  expect(positions.find((p) => p.symbol === 'BTC-USD-PERPETUAL')).toEqual({
     symbol: 'BTC-USD-PERPETUAL',
     deliverable_id: deliverables.find((d) => d.symbol === 'BTC-USD-PERPETUAL')?.deliverable_id,
     product_type: 'perpetual_future',

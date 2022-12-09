@@ -1,3 +1,5 @@
+import { describe, expect, test, beforeAll, afterAll } from '@jest/globals';
+
 import getMarketProxyApi, { MarketProxyApi } from '../../market-proxy/api';
 import { getConfig } from '../../market-proxy/base/config';
 import { OrderRequest, TradeableEntity } from '../../market-proxy/types';
@@ -215,6 +217,7 @@ describe('[WS] Multi Leg Placement', () => {
       state: 'rejected',
       timestamp: expect.any(Number),
       orderId: expect.any(String),
+      reason: 'invalid_legs',
     });
   });
 
@@ -243,6 +246,7 @@ describe('[WS] Multi Leg Placement', () => {
       state: 'rejected',
       timestamp: expect.any(Number),
       orderId: expect.any(String),
+      reason: 'invalid_legs',
     });
   });
 });

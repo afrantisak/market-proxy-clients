@@ -27,7 +27,11 @@ export type RequestName =
   | 'cancel_all_orders'
   | 'entities_and_rules_request'
   | 'refresh_interest'
-  | 'cancel_order';
+  | 'cancel_order'
+  | 'register_for_rfqs'
+  | 'deregister_for_rfqs'
+  | 'positions'
+  | 'subscribe';
 
 interface OrderLeg {
   symbol?: string;
@@ -197,6 +201,12 @@ export type PositionRaw = {
   mark_price: string;
 };
 
+export type PositionsWsResponseRaw = {
+  server_utc_timestamp: string;
+  user_tag: string;
+  positions: PositionRaw[];
+};
+
 export type OrderDetailsRestRaw = {
   utc_timestamp: string;
   market_id: string;
@@ -239,4 +249,60 @@ export type OrderbookRestResponseRaw = {
     price: string;
     quantity: string;
   }[];
+};
+
+export type SubscribeTypeRaw = 'snap_full_updates' | 'snap_only' | 'snap_with_deltas';
+
+export type RfqAddedRaw = {
+  server_utc_timestamp: string;
+  utc_timestamp: string;
+  market_id: 'none';
+  tradeable_entity_id: string;
+  symbol: string;
+  side: Side;
+  order_id: string;
+  price: string;
+  quantity: string;
+};
+
+export type RfqRemovedRaw = {
+  server_utc_timestamp: string;
+  utc_timestamp: string;
+  market_id: 'none';
+  tradeable_entity_id: string;
+  symbol: string;
+  side: Side;
+  order_id: string;
+};
+
+export type SnapshotRawRow = {
+  price: string;
+  quantity: string;
+  orderid: string;
+  utc_timestamp: string;
+};
+
+export type SnapshotRaw = {
+  server_utc_timestamp: string;
+  market_id: string;
+  tradeable_entity_id: string;
+  symbol: string;
+  buy: SnapshotRawRow[];
+  sell: SnapshotRawRow[];
+};
+
+export type ExecutionRaw = {
+  server_utc_timestamp: string;
+  utc_timestamp: string;
+  tradeable_entity_id: string;
+  symbol: string;
+  trade_id: string;
+  order_id: string;
+  client_order_id: string;
+  executed_price: string;
+  executed_quantity: string;
+  liquidity_flag: string;
+  price: string;
+  side: Side;
+  order_state: string;
 };
